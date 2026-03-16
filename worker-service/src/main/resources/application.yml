@@ -1,0 +1,32 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: worker-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/cloud_tasks}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:123}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+aws:
+  region: ${AWS_REGION:eu-north-1}
+  sqs:
+    queue-url: ${AWS_SQS_QUEUE_URL:https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue}
+  s3:
+    bucket-name: ${AWS_S3_BUCKET_NAME:ram-cloud-task-bucket-123}

@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: cloud_task_postgres
+    environment:
+      POSTGRES_DB: cloud_tasks
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api-service:
+    build:
+      context: ./api-service
+    container_name: api-service
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/cloud_tasks
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123
+      AWS_REGION: eu-north-1
+      AWS_SQS_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue
+      AWS_S3_BUCKET_NAME: ram-cloud-task-bucket-123
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/ec2-user/.aws:/root/.aws:ro
+
+  worker-service:
+    build:
+      context: ./worker-service
+    container_name: worker-service
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/cloud_tasks
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123
+      AWS_REGION: eu-north-1
+      AWS_SQS_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue
+      AWS_S3_BUCKET_NAME: ram-cloud-task-bucket-123
+    ports:
+      - "8081:8081"
+    volumes:
+      - /home/ec2-user/.aws:/root/.aws:ro
+
+volumes:
+  postgres_data:
