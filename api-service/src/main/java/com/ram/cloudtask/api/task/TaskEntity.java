@@ -17,26 +17,31 @@ public class TaskEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "original_file_name", nullable = false)
     private String originalFileName;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "s3_key", nullable = false, unique = true)
     private String s3Key;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private TaskStatus status;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "processed_at")
     private LocalDateTime processedAt;
 
+    @Column(name = "file_size")
     private Long fileSize;
 
+    @Column(name = "content_type")
     private String contentType;
 
+    @Column(name = "error_message")
     private String errorMessage;
 }
