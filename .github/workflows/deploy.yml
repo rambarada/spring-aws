@@ -45,7 +45,7 @@ jobs:
           ./mvnw clean package -DskipTests
 
           cd ../worker-service
-          echo "Building worker-service..."
+          echo "Building worker-service updated..."
           ./mvnw clean package -DskipTests
 
           cd ..
