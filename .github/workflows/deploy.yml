@@ -28,7 +28,7 @@ jobs:
           set -euxo pipefail
           ssh -o ServerAliveInterval=30 \
               -o ServerAliveCountMax=10 \
-              -i ~/.ssh/ec2_key.pem \
+              -i ~/.ssh/spring_aws_app_key.pem \
               "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" 'bash -s' <<'EOF'
           set -euxo pipefail
           export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
