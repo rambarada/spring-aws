@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -20,17 +21,30 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
           chmod 600 ~/.ssh/ec2_key.pem
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -T 10 -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ssh -v \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            -i ~/.ssh/ec2_key.pem \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "echo connected && hostname && whoami"
 
       - name: Deploy on EC2
         shell: bash
         run: |
           set -euxo pipefail
-          ssh -o ServerAliveInterval=30 \
-              -o ServerAliveCountMax=10 \
-              -i ~/.ssh/spring_aws_app_key.pem \
-              "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" 'bash -s' <<'EOF'
+          ssh \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            -i ~/.ssh/ec2_key.pem \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" 'bash -s' <<'EOF'
           set -euxo pipefail
+
           export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
           export PATH=$JAVA_HOME/bin:$PATH
 
@@ -45,7 +59,7 @@ jobs:
           ./mvnw clean package -DskipTests
 
           cd ../worker-service
-          echo "Building worker-service updated..."
+          echo "Building worker-service..."
           ./mvnw clean package -DskipTests
 
           cd ..
