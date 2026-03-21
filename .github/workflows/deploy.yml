@@ -22,30 +22,30 @@ jobs:
 
       - name: Deploy on EC2
         run: |
-          ssh \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=10 \
-            -i ~/.ssh/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e
+          ssh -o ServerAliveInterval=30 \
+              -o ServerAliveCountMax=10 \
+              -i ~/.ssh/ec2_key.pem \
+              ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s' <<'EOF'
+          set -e
+  
+          export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
+          export PATH=$JAVA_HOME/bin:$PATH
 
-            export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
-            export PATH=$JAVA_HOME/bin:$PATH
+          cd ~/spring_aws
+          git pull origin main
 
-            cd ~/spring_aws
-            git pull origin main
+          chmod +x api-service/mvnw
+          chmod +x worker-service/mvnw
 
-            chmod +x api-service/mvnw
-            chmod +x worker-service/mvnw
+          cd api-service
+          echo "Building api-service..."
+          ./mvnw clean package -DskipTests
 
-            cd api-service
-            echo "Building api-service..."
-            ./mvnw clean package -DskipTests
+          cd ../worker-service
+          echo "Building worker-service..."
+          ./mvnw clean package -DskipTests
 
-            cd ../worker-service
-            echo "Building worker-service..."
-            ./mvnw clean package -DskipTests
-
-            cd ..
-            echo "Starting docker compose..."
-            docker compose up --build -d
+          cd ..
+          echo "Starting docker compose..."
+          docker compose up --build -d
           EOF
