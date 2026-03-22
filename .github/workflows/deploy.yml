@@ -68,10 +68,20 @@ jobs:
           java-version: 17
           cache: maven
 
+      - name: Make mvnw executable for api-service
+        if: steps.changes.outputs.api_changed == 'true'
+        working-directory: ./api-service
+        run: chmod +x mvnw
+
       - name: Build api-service jar
         if: steps.changes.outputs.api_changed == 'true'
         working-directory: ./api-service
         run: ./mvnw clean package -DskipTests
+
+      - name: Make mvnw executable for worker-service
+        if: steps.changes.outputs.worker_changed == 'true'
+        working-directory: ./worker-service
+        run: chmod +x mvnw
 
       - name: Build worker-service jar
         if: steps.changes.outputs.worker_changed == 'true'
