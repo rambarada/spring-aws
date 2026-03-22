@@ -19,31 +19,22 @@ public class TaskWorkerService {
         this.s3WorkerService = s3WorkerService;
     }
 
-    @Transactional
-    public TaskEntity processTask(UUID taskId) {
-        TaskEntity task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
-
+    @Transactional public TaskEntity processTask(UUID taskId) {
+        TaskEntity task = taskRepository.findById(taskId) .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
         if (task.getStatus() == TaskStatus.DONE) {
             return task;
         }
-
         task.setStatus(TaskStatus.PROCESSING);
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
-
-        try {
-            S3FileMetadata metadata = s3WorkerService.inspectFile(task.getS3Key());
+        try { S3FileMetadata metadata = s3WorkerService.inspectFile(task.getS3Key());
             task.setFileSize(metadata.size());
             task.setContentType(metadata.contentType());
             task.setProcessedAt(LocalDateTime.now());
-
             Thread.sleep(3000);
-
             task.setStatus(TaskStatus.DONE);
             task.setUpdatedAt(LocalDateTime.now());
             return taskRepository.save(task);
-
         } catch (Exception e) {
             task.setStatus(TaskStatus.FAILED);
             task.setUpdatedAt(LocalDateTime.now());

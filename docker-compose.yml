@@ -32,6 +32,8 @@ services:
       AWS_REGION: eu-north-1
       AWS_SQS_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue
       AWS_S3_BUCKET_NAME: ram-cloud-task-bucket-123
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     ports:
       - "8080:8080"
 
@@ -49,6 +51,8 @@ services:
       AWS_REGION: eu-north-1
       AWS_SQS_QUEUE_URL: https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue
       AWS_S3_BUCKET_NAME: ram-cloud-task-bucket-123
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     ports:
       - "8081:8081"
 

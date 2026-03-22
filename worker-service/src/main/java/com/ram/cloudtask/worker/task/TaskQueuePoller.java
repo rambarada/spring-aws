@@ -36,6 +36,7 @@ public class TaskQueuePoller {
                 .queueUrl(awsProperties.getSqs().getQueueUrl())
                 .maxNumberOfMessages(5)
                 .waitTimeSeconds(5)
+                .attributeNamesWithStrings("ApproximateReceiveCount")
                 .build();
 
         List<Message> messages = sqsClient.receiveMessage(request).messages();
@@ -52,7 +53,8 @@ public class TaskQueuePoller {
 
     private void processMessage(Message message) {
         String messageBody = message.body();
-        log.info("Received message from SQS: {}", messageBody);
+        String receiveCount = message.attributes().get("ApproximateReceiveCount");
+        log.info("Received message from SQS: {}, receiveCount={}", messageBody, receiveCount);
 
         try {
             UUID taskId = UUID.fromString(messageBody);
@@ -69,7 +71,7 @@ public class TaskQueuePoller {
             log.info("Successfully processed task {} and deleted SQS message", taskId);
 
         } catch (Exception e) {
-            log.error("Failed to process message body: {}", messageBody, e);
+            log.error("Failed to process SQS message. body={}, receiptHandle={}", messageBody, message.receiptHandle(), e);
         }
     }
 }
