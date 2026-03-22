@@ -35,5 +35,6 @@ aws:
   region: ${AWS_REGION:eu-north-1}
   sqs:
     queue-url: ${AWS_SQS_QUEUE_URL:https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue}
+    dlq-url: ${AWS_SQS_DLQ_URL:https://sqs.eu-north-1.amazonaws.com/498713386924/worker_queue_dlq}
   s3:
     bucket-name: ${AWS_S3_BUCKET_NAME:ram-cloud-task-bucket-123}

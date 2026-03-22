@@ -17,6 +17,7 @@ public class AwsProperties {
     @Setter
     public static class SqsProperties {
         private String queueUrl;
+        private String dlqUrl;
     }
 
     @Getter
